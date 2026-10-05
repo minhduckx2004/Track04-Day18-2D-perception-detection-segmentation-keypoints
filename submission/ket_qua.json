@@ -1,0 +1,74 @@
+{
+  "progress": {
+    "box_iou": "ok",
+    "nms": "ok",
+    "batched_nms": "ok",
+    "average_precision": "ok",
+    "mask_iou": "ok",
+    "polygon_to_mask": "ok",
+    "mask_to_yolo_seg": "ok",
+    "autolabel": "ok",
+    "oks": "ok",
+    "joint_angle": "ok",
+    "FLIP_IDX": "ok"
+  },
+  "latency": [
+    {
+      "Cấu hình": "one-to-many + NMS, conf 0.25",
+      "preprocess (ms)": 1.75,
+      "inference (ms)": 9.28,
+      "postprocess (ms)": 1.2,
+      "số box": 5
+    },
+    {
+      "Cấu hình": "one-to-many + NMS, conf 0.001",
+      "preprocess (ms)": 1.64,
+      "inference (ms)": 8.65,
+      "postprocess (ms)": 1.26,
+      "số box": 203
+    },
+    {
+      "Cấu hình": "one-to-one NMS-free, conf 0.25",
+      "preprocess (ms)": 1.63,
+      "inference (ms)": 8.91,
+      "postprocess (ms)": 0.4,
+      "số box": 5
+    },
+    {
+      "Cấu hình": "one-to-one NMS-free, conf 0.001",
+      "preprocess (ms)": 1.65,
+      "inference (ms)": 9.02,
+      "postprocess (ms)": 0.39,
+      "số box": 204
+    }
+  ],
+  "result_4b": {
+    "flip_idx": "giải phẫu",
+    "epochs": 40,
+    "imgsz": 640,
+    "Box mAP50-95": 0.9303488492063492,
+    "Pose mAP50": 0.995,
+    "Pose mAP50-95": 0.4573462529843696,
+    "train (phút)": 4.2
+  },
+  "result_4c": null,
+  "answers": {
+    "Q1": "(a) Anh 640x480 co 6 300 du doan tho: cac feature map stride 8/16/32 la 80x60, 40x30 va 20x15, tong 4 800 + 1 200 + 300. No it hon 8 400 vi 8 400 la so anchor point cua anh vuong 640x640 (80x80 + 40x40 + 20x20).\n(b) Nhan goc la YOLO cxcywh chuan hoa, trong do hai so dau la tam box. Khi bi doc nham thanh xywh (goc tren-trai + rong/cao), goc tren-trai bi dat tai tam that nen toan bo box lech sang phai va xuong duoi dung nua kich thuoc.",
+    "Q2": "Cot thay doi nhieu nhat la thoi gian hau xu ly/NMS, ro nhat o conf thap vi khi do con rat nhieu box ung vien phai so IoU va loai duplicate. Trong canh dong, so cap box can xet tang nhanh nen NMS one-to-many ton thoi gian va kho song song hon; tren CPU/NPU phan nay cang de thanh nut co chai vi khong tan dung ma tran/tensor deu nhu forward model. Head one-to-one tao it duplicate hon nen loi ich ro nhat khi ta muon giu nguong conf thap de khong bo sot object.",
+    "Q3": "(a) Neu hai cong nhan co IoU 0.75 va cung class, NMS nguong 0.7 se giu box diem cao hon va loai box con lai, tuc la dem thieu mot nguoi. Tang nguong giup giu cac object sat nhau nhung de de lai duplicate; giam nguong don duplicate manh hon nhung tang nguy co xoa nham object that.\n(b) Head one-to-one thuan loi cho inference vi khong can NMS, nhung trong training moi GT chi nhan it mau duong nen tin hieu hoc co the ngheo hon. Head one-to-many cung cap nhieu mau duong quanh moi object, giup backbone/head hoc on dinh hon; khi suy luan co the dung nhanh one-to-one nhanh hon.",
+    "Q4": "(a) Semantic segmentation chi gan class cho tung pixel, khong giu id instance. No co the dem thieu khi hai nguoi cham/dinh thanh mot vung lien thong, va dem thua khi mot nguoi bi che khuat hoac mask bi vo thanh nhieu manh roi. Panoptic segmentation them id instance cho cac class \"thing\", nen vua biet pixel thuoc class person vua biet thuoc nguoi so may.\n(b) Trong vi du nay phan lon pixel cua xe buyt bi gan thanh class train. Model nham vi semantic model chi hoc tap class co dinh va dua nhieu vao hinh dang/ngu canh; mot xe buyt lon nhin ngang co cau truc cua so/than dai kha giong train trong du lieu huan luyen.",
+    "Q5": "(a) YOLO26-seg dung prototype toan anh nen mask cua object lon thuong giu duoc bien muot hon theo do phan giai anh, nhung object nho co the tho vi chi tiet bi nen trong prototype/feature map. Mask R-CNN du doan mask 28x28 cho tung RoI nen object nho sau khi resize RoI co the on, con object lon de bi bien rang cua/tho khi phong mask 28x28 len kich thuoc lon.\n(b) Lay nearest theo tung mask doc lap co the ghep nhieu mask YOLO vao cung mot mask Mask R-CNN, lam sai quan he one-to-one va bo roi object khac. Hungarian matching toi uu ghep cap toan cuc nen tranh viec mot instance tot bi tranh boi nhieu du doan gan nhau.",
+    "Q6": "(a) Diem A nam trong object nen SAM tra ve mask gan nhu toan bo nguoi/object muc tieu; diem B roi vao mot phan nho hoac vung mo ho nen mask chi bat mot manh nho, IoU gan 0 voi mask mong muon. Khi auto-label, prompt bang box an toan hon vi box cung cap ca pham vi object va rang buoc bien, it phu thuoc vao mot diem don le co the nam sai phan hoac roi vao vung che khuat.\n(b) Nen dung SAM truc tiep khi can nhan chat luong cao, du lieu it, toc do khong qua gat hoac co nguoi kiem duyet. Khi trien khai realtime/edge hoac chay so luong lon voi class co dinh, dung SAM de tao nhan roi train YOLO26-seg nho se nhanh, re va de dong goi hon.",
+    "Q7": "Khi dat `KP_THR = -100`, Keypoint R-CNN van ve dau goi va mat ca bi cat ngoai khung bang vi tri argmax trong heatmap, thuong bi kep o vung bien hoac tai diem model doan manh nhat du keypoint that khong nhin thay. Dieu nay cho thay argmax luon ep ra mot toa do, ke ca khi bang chung rat yeu hoac keypoint nam ngoai anh. Vi vay moi keypoint can score/visibility de biet co nen tin va dung diem do trong ve, do goc hay ra quyet dinh hay khong.",
+    "Q8": "Voi nguoi 40x80, sai so cua mat chi khoang 7-8 px la OKS da roi xuong duoi 0.5; voi nguoi 250x500, cung keypoint mat chiu duoc sai so lon hon nhieu, khoang 45-50 px, vi OKS chuan hoa theo kich thuoc object. Sigma cua mat nho hon hong vi mat la diem nho, de dinh nghia chinh xac va duoc cham nghiem hon; hong la vung rong/mo ho hon nen sai so vai pixel it nghiem trong hon. Voi camera cong gan cao, nguoi chi cao khoang 80 px thi vai pixel lech o cac keypoint nho da lam OKS giam manh, nen can anh du net hoac quy tac downstream phai chiu duoc nhieu.",
+    "Q9": "(a) Luat \"than nghieng > 60 do\" co the bao nham khi nguoi cui nhat do, ngoi, leo cau thang, hoac camera bi nghieng/anh bi xoay. No co the bo sot khi nguoi nga gan theo huong camera nen than van gan thang dung trong anh, bi che khuat keypoint vai/hong, hoac chi nga mot phan nhung chua vuot nguong.\n(b) Model pose duoc train chu yeu tren anh nguoi thang dung; xoay 90 do lam phan phoi hinh dang va huong trong luc khac xa du lieu train, nen detector/pose head giam confidence va mat nguoi du noi dung anh van du. Augmentation xoay cuc doan khong phai luc nao cung co trong train.\n(c) He thong that can tracking theo thoi gian, van toc/gia toc hoac thay doi tu the qua nhieu frame, kiem tra confidence/visibility, vung quan tam, xac nhan bang nhieu khung hinh, va co che giam bao dong gia nhu nguoi van hanh xac nhan hoac ket hop cam bien khac.",
+    "Q10": "Neu train va val deu chi co ho quay phai, giu `flip_idx` dong nhat co the khong lam mAP tren val giam nhieu, vi tap val khong kiem tra truong hop lat trai theo quy uoc giai phau. Bug tro thanh that khi trien khai gap ho quay trai hoac khi dung augmentation flip ngang: nhan left/right sau khi lat se sai ngu nghia, model hoc lan hai ben co the. Mot tap val can bang ca hai huong hoac val lat guong moi lo loi nay ro hon.",
+    "Q11": "Hai kieu loi de thay la nham trai/phai o cac chan khi hai chan chong len nhau, va sai lon o cac diem nho nhu paw/wrist/hock khi chan bi che hoac nam sat mep anh. Voi loi trai/phai, can bo sung du lieu/val co ca hai huong, dung `flip_idx` giai phau dung va kiem tra them tren val lat guong. Voi loi do che khuat hoac keypoint mo ho, nen them anh kho da gan nhan ky, tang crop/occlusion augmentation hop ly, dung anh do phan giai cao hon hoac dat nguong confidence de khong dung keypoint qua yeu trong ung dung downstream.",
+    "Q12": "Dung cung `sigma = 1/12` cho moi keypoint la don gian nhung khong that su hop ly: mui la diem nho, dinh nghia sac hon, con goc duoi hoac cac khop chan co the mo ho va do lech chap nhan duoc khac nhau. Voi dataset custom, nen uoc luong sigma tu do phan tan giua nhieu annotator tren cung anh, chuan hoa sai so theo kich thuoc object roi lay thong ke rieng cho tung keypoint. Neu khong co nhieu annotator, co the gan nhan lap mot tap nho hoac phan tich residual tren tap val da kiem duyet de hieu chinh sigma theo do kho/thang do cua tung diem."
+  },
+  "env": {
+    "device": "cuda",
+    "torch": "2.11.0+cu130",
+    "ultralytics": "8.4.171"
+  }
+}
